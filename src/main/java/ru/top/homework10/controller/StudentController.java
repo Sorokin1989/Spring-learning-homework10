@@ -72,6 +72,7 @@ import ru.top.homework10.model.Student;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/student")
@@ -118,9 +119,31 @@ public class StudentController {
         if (students.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        List<StudentDto> list=students.stream().map(student -> student.convert()).toList();
+        List<StudentDto> list = students.stream().map(student -> student.convert()).toList();
         return new ResponseEntity<>(list, HttpStatus.OK);
 
+
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<StudentDto> getById(@PathVariable Integer id) {
+        if (id<=0){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        for (Student student : students) {
+            if (student.getId() != null  && student.getId().equals(id)) {
+                return new ResponseEntity<>(student.convert(), HttpStatus.OK);
+            }
+
+//        Optional<Student> student = students.stream().findFirst();
+//            StudentDto studentDto = student.get().convert();
+//        Optional<StudentDto> studentDto = students.stream().filter(student -> student.getId() != null && student.getId().equals(id)).map(student -> student.convert()).findFirst();
+//        if (studentDto.isPresent()) {
+//            return ResponseEntity.ok(studentDto.get());
+//        }
+//        return ResponseEntity.notFound().build();
+            }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
     }
 }
