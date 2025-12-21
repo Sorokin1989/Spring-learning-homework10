@@ -78,34 +78,49 @@ import java.util.List;
 public class StudentController {
     List<Student> students;
     private static String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+
     public StudentController() {
         students = new ArrayList<Student>();
     }
+
     @PostMapping("/")
-public ResponseEntity <Student> add(@RequestBody StudentDto studentDto) {
-       if (studentDto.getEmail() == null || studentDto.getEmail().isEmpty()||!studentDto.getEmail().matches(emailRegex)) {
-           return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-       }
+    public ResponseEntity<StudentDto> add(@RequestBody StudentDto studentDto) {
+        if (studentDto.getEmail() == null || studentDto.getEmail().isEmpty() || !studentDto.getEmail().matches(emailRegex)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
-       if(students.stream().anyMatch(student ->student.getEmail()!=null&& student.getEmail().equalsIgnoreCase(studentDto.getEmail()))) {
-           return new ResponseEntity<>(HttpStatus.CONFLICT);
-       }
+        if (students.stream().anyMatch(student -> student.getEmail() != null && student.getEmail().equalsIgnoreCase(studentDto.getEmail()))) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
 
-       if (studentDto.getName()==null || studentDto.getName().isEmpty()|| studentDto.getName().length()<2 || studentDto.getName().length()>50) {
-           return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-       }
-       if(studentDto.getSurname()==null || studentDto.getSurname().isEmpty() || studentDto.getSurname().length()<2 || studentDto.getSurname().length()>50) {
-           return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-       }
-       if (studentDto.getAge()==null || studentDto.getAge()<0 || studentDto.getAge()>100 ){
-           return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-       }
+        if (studentDto.getName() == null || studentDto.getName().isEmpty() || studentDto.getName().length() < 2 || studentDto.getName().length() > 50) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        if (studentDto.getSurname() == null || studentDto.getSurname().isEmpty() || studentDto.getSurname().length() < 2 || studentDto.getSurname().length() > 50) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        if (studentDto.getAge() == null || studentDto.getAge() < 0 || studentDto.getAge() > 100) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 //        students.add(studentDto.convert());
 
-      Student student=studentDto.convert();
-students.add(student);
+        Student student = studentDto.convert();
+        students.add(student);
+
+        StudentDto newStudentDto = student.convert();
 
 
-        return new ResponseEntity<>(student,HttpStatus.CREATED);
+        return new ResponseEntity<>(newStudentDto, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<List<StudentDto>> getAll() {
+        if (students.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        List<StudentDto> list=students.stream().map(student -> student.convert()).toList();
+        return new ResponseEntity<>(list, HttpStatus.OK);
+
+
     }
 }
