@@ -1,15 +1,16 @@
 package ru.top.homework10.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import ru.top.homework10.model.Student;
 
 public class StudentDto {
-    private String name;
+    private   String name;
     private String surname;
-    private int age;
-    private int phone;
+    private Integer age;
+    private Integer phone;
     private String email;
 
-    public StudentDto(String name, String surname, int age, int phone, String email) {
+    public StudentDto(String name, String surname, Integer age, Integer phone, String email) {
         this.name = name;
         this.surname = surname;
         this.age = age;
@@ -33,11 +34,11 @@ public class StudentDto {
         this.surname = surname;
     }
 
-    public int getAge() {
+    public Integer getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 
@@ -45,7 +46,7 @@ public class StudentDto {
         return phone;
     }
 
-    public void setPhone(int phone) {
+    public void setPhone(Integer phone) {
         this.phone = phone;
     }
 

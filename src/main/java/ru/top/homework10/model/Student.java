@@ -1,7 +1,9 @@
 package ru.top.homework10.model;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import ru.top.homework10.dto.StudentDto;
 
+@JsonPropertyOrder({"id", "name", "surname", "age", "phone", "email"})
 public class Student {
     //    Id
 //    Name
@@ -9,15 +11,16 @@ public class Student {
 //    Age
 //    Phone ne obyazatelnoe pole
 //    Email  unikalnoe pole
-    private int id;
+
+    private Integer id;
     private String name;
     private String surname;
-    private int age;
-    private int phone;
+    private Integer age;
+    private Integer phone;
     private String email;
     private static int count = 1;
 
-    public Student( String name, String surname, int age, int phone, String email) {
+    public Student( String name, String surname, Integer age, Integer phone, String email) {
         this.id = count++;
         this.name = name;
         this.surname = surname;
@@ -26,11 +29,11 @@ public class Student {
         this.email = email;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -50,19 +53,19 @@ public class Student {
         this.surname = surname;
     }
 
-    public int getAge() {
+    public Integer getAge() {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 
-    public int getPhone() {
+    public Integer getPhone() {
         return phone;
     }
 
-    public void setPhone(int phone) {
+    public void setPhone(Integer phone) {
         this.phone = phone;
     }
 

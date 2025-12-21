@@ -64,8 +64,48 @@ package ru.top.homework10.controller;
 //
 
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import ru.top.homework10.dto.StudentDto;
+import ru.top.homework10.model.Student;
 
+import java.util.ArrayList;
+import java.util.List;
 
+@RestController
+@RequestMapping("/api/student")
 public class StudentController {
+    List<Student> students;
+    private static String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+    public StudentController() {
+        students = new ArrayList<Student>();
+    }
+    @PostMapping("/")
+public ResponseEntity <Student> add(@RequestBody StudentDto studentDto) {
+       if (studentDto.getEmail() == null || studentDto.getEmail().isEmpty()||!studentDto.getEmail().matches(emailRegex)) {
+           return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+       }
 
+       if(students.stream().anyMatch(student ->student.getEmail()!=null&& student.getEmail().equalsIgnoreCase(studentDto.getEmail()))) {
+           return new ResponseEntity<>(HttpStatus.CONFLICT);
+       }
+
+       if (studentDto.getName()==null || studentDto.getName().isEmpty()|| studentDto.getName().length()<2 || studentDto.getName().length()>50) {
+           return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+       }
+       if(studentDto.getSurname()==null || studentDto.getSurname().isEmpty() || studentDto.getSurname().length()<2 || studentDto.getSurname().length()>50) {
+           return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+       }
+       if (studentDto.getAge()==null || studentDto.getAge()<0 || studentDto.getAge()>100 ){
+           return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+       }
+//        students.add(studentDto.convert());
+
+      Student student=studentDto.convert();
+students.add(student);
+
+
+        return new ResponseEntity<>(student,HttpStatus.CREATED);
+    }
 }
