@@ -160,7 +160,7 @@ if (result.isEmpty()) {
 return new ResponseEntity<>(result, HttpStatus.OK);
 
     }
-@GetMapping("/email")
+@GetMapping("/by-email")
 public ResponseEntity<StudentDto> searchByEmail(@RequestParam String email){
         if (email==null || email.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -173,6 +173,44 @@ if (studentDto.isPresent()) {
     return new ResponseEntity<>(studentDto.get(), HttpStatus.OK);
 }
 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+}
+
+@GetMapping("/filter")
+public ResponseEntity<List<StudentDto>> filterByAge(@RequestParam(required = false) Integer minAge,
+                                                    @RequestParam(required = false) Integer maxAge) {
+        if (students==null || students.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (minAge!=null && minAge<0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        if(maxAge!=null && maxAge>100){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        if (minAge!=null && maxAge!=null && minAge>maxAge){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        List<StudentDto> result;
+
+        if (minAge!=null && maxAge==null){
+            result=students.stream().filter(student -> student.getAge()!=null && student.getAge()>=minAge).map(student -> student.convert()).toList();
+        } else if (maxAge!=null && minAge==null) {
+            result=students.stream().filter(student -> student.getAge()!=null && student.getAge()<=maxAge).map(student -> student.convert()).toList();
+        } else if (minAge!=null && maxAge!=null) {
+           result=students.stream().filter(student -> student.getAge()!=null && student.getAge()>=minAge && student.getAge()<=maxAge).
+                    map(student -> student.convert()).toList();
+        } else
+            result=students.stream().filter(student -> student.getAge()!=null).map(student -> student.convert()).toList();
+
+        if (result.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+
+
+return new ResponseEntity<>(result,HttpStatus.OK);
 }
 
 }
