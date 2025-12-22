@@ -114,7 +114,7 @@ public class StudentController {
         return new ResponseEntity<>(newStudentDto, HttpStatus.CREATED);
     }
 
-    @GetMapping("/")
+    @GetMapping("/all")
     public ResponseEntity<List<StudentDto>> getAll() {
         if (students.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -146,4 +146,33 @@ public class StudentController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
     }
+    @GetMapping("/")
+    public ResponseEntity<List<StudentDto>> searchByNameAndSurname(@RequestParam String name, @RequestParam String surname) {
+        if (name==null || name.isEmpty() || surname==null || surname.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+     List<StudentDto> result =students.stream().filter(student -> student.getName()!=null&&student.getName().equalsIgnoreCase(name) &&
+                student.getSurname()!=null&&student.getSurname().equalsIgnoreCase(surname)).map(student -> student.convert()).toList();
+if (result.isEmpty()) {
+//    return new ResponseEntity<>(result,HttpStatus.NO_CONTENT);
+    return ResponseEntity.noContent().build();
+}
+return new ResponseEntity<>(result, HttpStatus.OK);
+
+    }
+@GetMapping("/email")
+public ResponseEntity<StudentDto> searchByEmail(@RequestParam String email){
+        if (email==null || email.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        if (students.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+   Optional<StudentDto> studentDto=students.stream().filter(student -> student.getEmail()!=null&&student.getEmail().equalsIgnoreCase(email)).map(student -> student.convert()).findFirst();
+if (studentDto.isPresent()) {
+    return new ResponseEntity<>(studentDto.get(), HttpStatus.OK);
+}
+return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+}
+
 }
