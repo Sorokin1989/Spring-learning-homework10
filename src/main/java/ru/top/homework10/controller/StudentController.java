@@ -257,14 +257,15 @@ public class StudentController {
             }
 
         }
-        if (studentDto.getPhone() != null) {
-            Integer phone = studentDto.getPhone();
-            if (phone <= 0) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-
-
+        if (studentDto.getPhone() == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+
+        Integer phone = studentDto.getPhone();
+        if (phone <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         updateStudent.setName(studentDto.getName());
         updateStudent.setSurname(studentDto.getSurname());
         updateStudent.setAge(studentDto.getAge());
