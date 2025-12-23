@@ -248,15 +248,15 @@ public class StudentController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-if (!studentDto.getEmail().equalsIgnoreCase(updateStudent.getEmail())) {
+        if (!studentDto.getEmail().equalsIgnoreCase(updateStudent.getEmail())) {
 
 
-    boolean existsEmail = students.stream().filter(student -> !student.getId().equals(id)).anyMatch(student -> student.getEmail() != null && student.getEmail().equalsIgnoreCase(studentDto.getEmail()));
-    if (existsEmail) {
-        return new ResponseEntity<>(HttpStatus.CONFLICT);
-    }
+            boolean existsEmail = students.stream().filter(student -> !student.getId().equals(id)).anyMatch(student -> student.getEmail() != null && student.getEmail().equalsIgnoreCase(studentDto.getEmail()));
+            if (existsEmail) {
+                return new ResponseEntity<>(HttpStatus.CONFLICT);
+            }
 
-}
+        }
         if (studentDto.getPhone() != null) {
             Integer phone = studentDto.getPhone();
             if (phone <= 0) {
@@ -270,9 +270,92 @@ if (!studentDto.getEmail().equalsIgnoreCase(updateStudent.getEmail())) {
         updateStudent.setAge(studentDto.getAge());
         updateStudent.setPhone(studentDto.getPhone());
         updateStudent.setEmail(studentDto.getEmail());
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(updateStudent.convert(), HttpStatus.OK);
 
     }
 
+    @PatchMapping("/update-partial/{id}")
+    public ResponseEntity<StudentDto> updatePartial(@RequestBody StudentDto studentDto,
+                                                    @PathVariable Integer id) {
+        if (students == null || students.isEmpty()) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        if (studentDto == null) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
+        if (id == null || id < 0) {
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        }
 
+        Student updateStudent = students.stream().filter(student -> student.getId() != null && student.getId().equals(id)).findFirst().orElse(null);
+
+        if (updateStudent == null) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+        boolean hasUpdates = false;
+
+        if (studentDto.getName() != null) {
+            if (studentDto.getName().isEmpty() || studentDto.getName().length() < 2 || studentDto.getName().length() > 50) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            } else {
+                updateStudent.setName(studentDto.getName());
+                hasUpdates = true;
+            }
+
+        }
+        if (studentDto.getSurname() != null) {
+            if (studentDto.getSurname().isEmpty() || studentDto.getSurname().length() < 2 || studentDto.getSurname().length() > 50) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            } else {
+                updateStudent.setSurname(studentDto.getSurname());
+                hasUpdates = true;
+            }
+        }
+
+        if (studentDto.getAge() != null) {
+            if (studentDto.getAge() < 0 || studentDto.getAge() > 100) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            } else {
+                updateStudent.setAge(studentDto.getAge());
+                hasUpdates = true;
+            }
+        }
+        if (studentDto.getEmail() != null) {
+            if (studentDto.getEmail().isEmpty() || !studentDto.getEmail().matches(emailRegex)) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+            } else {
+                if (!studentDto.getEmail().equalsIgnoreCase(updateStudent.getEmail())) {
+
+                    boolean existsEmail = students.stream().filter(student -> !student.getId().equals(id)).anyMatch(student -> student.getEmail() != null && student.getEmail().equalsIgnoreCase(studentDto.getEmail()));
+                    if (existsEmail) {
+                        return new ResponseEntity<>(HttpStatus.CONFLICT);
+                    } else {
+                        updateStudent.setEmail(studentDto.getEmail());
+                        hasUpdates = true;
+                    }
+                }
+
+            }
+
+        }
+
+        if (studentDto.getPhone() != null) {
+            Integer phone = studentDto.getPhone();
+            if (phone <= 0) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            } else {
+                updateStudent.setPhone(studentDto.getPhone());
+                hasUpdates = true;
+            }
+
+
+        }
+        if (hasUpdates) {
+            return new ResponseEntity<>(updateStudent.convert(), HttpStatus.OK);
+
+        }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
