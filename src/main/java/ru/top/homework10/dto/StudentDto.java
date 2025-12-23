@@ -42,7 +42,7 @@ public class StudentDto {
         this.age = age;
     }
 
-    public int getPhone() {
+    public Integer getPhone() {
         return phone;
     }
 

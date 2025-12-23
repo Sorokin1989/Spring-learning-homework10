@@ -127,11 +127,11 @@ public class StudentController {
 
     @GetMapping("/{id}")
     public ResponseEntity<StudentDto> getById(@PathVariable Integer id) {
-        if (id<=0){
+        if (id <= 0) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         for (Student student : students) {
-            if (student.getId() != null  && student.getId().equals(id)) {
+            if (student.getId() != null && student.getId().equals(id)) {
                 return new ResponseEntity<>(student.convert(), HttpStatus.OK);
             }
 
@@ -142,75 +142,137 @@ public class StudentController {
 //            return ResponseEntity.ok(studentDto.get());
 //        }
 //        return ResponseEntity.notFound().build();
-            }
+        }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
     }
+
     @GetMapping("/")
     public ResponseEntity<List<StudentDto>> searchByNameAndSurname(@RequestParam String name, @RequestParam String surname) {
-        if (name==null || name.isEmpty() || surname==null || surname.isEmpty()) {
+        if (name == null || name.isEmpty() || surname == null || surname.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-     List<StudentDto> result =students.stream().filter(student -> student.getName()!=null&&student.getName().equalsIgnoreCase(name) &&
-                student.getSurname()!=null&&student.getSurname().equalsIgnoreCase(surname)).map(student -> student.convert()).toList();
-if (result.isEmpty()) {
+        List<StudentDto> result = students.stream().filter(student -> student.getName() != null && student.getName().equalsIgnoreCase(name) &&
+                student.getSurname() != null && student.getSurname().equalsIgnoreCase(surname)).map(student -> student.convert()).toList();
+        if (result.isEmpty()) {
 //    return new ResponseEntity<>(result,HttpStatus.NO_CONTENT);
-    return ResponseEntity.noContent().build();
-}
-return new ResponseEntity<>(result, HttpStatus.OK);
+            return ResponseEntity.noContent().build();
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
 
     }
-@GetMapping("/by-email")
-public ResponseEntity<StudentDto> searchByEmail(@RequestParam String email){
-        if (email==null || email.isEmpty()) {
+
+    @GetMapping("/by-email")
+    public ResponseEntity<StudentDto> searchByEmail(@RequestParam String email) {
+        if (email == null || email.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         if (students.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-   Optional<StudentDto> studentDto=students.stream().filter(student -> student.getEmail()!=null&&student.getEmail().equalsIgnoreCase(email)).map(student -> student.convert()).findFirst();
-if (studentDto.isPresent()) {
-    return new ResponseEntity<>(studentDto.get(), HttpStatus.OK);
-}
-return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-}
+        Optional<StudentDto> studentDto = students.stream().filter(student -> student.getEmail() != null && student.getEmail().equalsIgnoreCase(email)).map(student -> student.convert()).findFirst();
+        if (studentDto.isPresent()) {
+            return new ResponseEntity<>(studentDto.get(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
-@GetMapping("/filter")
-public ResponseEntity<List<StudentDto>> filterByAge(@RequestParam(required = false) Integer minAge,
-                                                    @RequestParam(required = false) Integer maxAge) {
-        if (students==null || students.isEmpty()) {
+    @GetMapping("/filter")
+    public ResponseEntity<List<StudentDto>> filterByAge(@RequestParam(required = false) Integer minAge,
+                                                        @RequestParam(required = false) Integer maxAge) {
+        if (students == null || students.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        if (minAge!=null && minAge<0) {
+        if (minAge != null && minAge < 0) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        if(maxAge!=null && maxAge>100){
+        if (maxAge != null && maxAge > 100) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        if (minAge!=null && maxAge!=null && minAge>maxAge){
+        if (minAge != null && maxAge != null && minAge > maxAge) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         List<StudentDto> result;
 
-        if (minAge!=null && maxAge==null){
-            result=students.stream().filter(student -> student.getAge()!=null && student.getAge()>=minAge).map(student -> student.convert()).toList();
-        } else if (maxAge!=null && minAge==null) {
-            result=students.stream().filter(student -> student.getAge()!=null && student.getAge()<=maxAge).map(student -> student.convert()).toList();
-        } else if (minAge!=null && maxAge!=null) {
-           result=students.stream().filter(student -> student.getAge()!=null && student.getAge()>=minAge && student.getAge()<=maxAge).
+        if (minAge != null && maxAge == null) {
+            result = students.stream().filter(student -> student.getAge() != null && student.getAge() >= minAge).map(student -> student.convert()).toList();
+        } else if (maxAge != null && minAge == null) {
+            result = students.stream().filter(student -> student.getAge() != null && student.getAge() <= maxAge).map(student -> student.convert()).toList();
+        } else if (minAge != null && maxAge != null) {
+            result = students.stream().filter(student -> student.getAge() != null && student.getAge() >= minAge && student.getAge() <= maxAge).
                     map(student -> student.convert()).toList();
         } else
-            result=students.stream().filter(student -> student.getAge()!=null).map(student -> student.convert()).toList();
+            result = students.stream().filter(student -> student.getAge() != null).map(student -> student.convert()).toList();
 
-        if (result.isEmpty()){
+        if (result.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
 
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 
-return new ResponseEntity<>(result,HttpStatus.OK);
+    @PutMapping("/{id}")
+    public ResponseEntity<StudentDto> updateAll(@RequestBody StudentDto studentDto,
+                                                @PathVariable Integer id) {
+        if (students == null || students.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (studentDto == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        if (id == null || id < 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        Student updateStudent = students.stream().filter(student -> student.getId() != null && student.getId().equals(id)).findFirst().orElse(null);
+
+        if (updateStudent == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        if (studentDto.getName() == null || studentDto.getName().isEmpty() || studentDto.getName().length() < 2 || studentDto.getName().length() > 50) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        if (studentDto.getSurname() == null || studentDto.getSurname().isEmpty() || studentDto.getSurname().length() < 2 || studentDto.getSurname().length() > 50) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        if (studentDto.getAge() == null || studentDto.getAge() < 0 || studentDto.getAge() > 100) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        if (studentDto.getEmail() == null || studentDto.getEmail().isEmpty() || !studentDto.getEmail().matches(emailRegex)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+if (!studentDto.getEmail().equalsIgnoreCase(updateStudent.getEmail())) {
+
+
+    boolean existsEmail = students.stream().filter(student -> !student.getId().equals(id)).anyMatch(student -> student.getEmail() != null && student.getEmail().equalsIgnoreCase(studentDto.getEmail()));
+    if (existsEmail) {
+        return new ResponseEntity<>(HttpStatus.CONFLICT);
+    }
+
 }
+        if (studentDto.getPhone() != null) {
+            Integer phone = studentDto.getPhone();
+            if (phone <= 0) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+
+        }
+        updateStudent.setName(studentDto.getName());
+        updateStudent.setSurname(studentDto.getSurname());
+        updateStudent.setAge(studentDto.getAge());
+        updateStudent.setPhone(studentDto.getPhone());
+        updateStudent.setEmail(studentDto.getEmail());
+        return new ResponseEntity<>(HttpStatus.OK);
+
+    }
+
 
 }
