@@ -375,4 +375,13 @@ public class StudentController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
     }
+    @DeleteMapping("/")
+    public ResponseEntity<Void> deleteAll() {
+        if (students == null || students.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        students.clear();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
