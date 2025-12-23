@@ -359,4 +359,20 @@ public class StudentController {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteStudent(@PathVariable Integer id) {
+        if (students == null || students.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if(id==null || id<0){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+       boolean findStudent=students.removeIf(student -> student.getId() != null && student.getId().equals(id));
+        if (findStudent) {
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+    }
 }
